@@ -1,15 +1,22 @@
 package org.apache.spark.sql.streaming
 
-import java.util.UUID
+import java.text.SimpleDateFormat
+import java.util.{Date, UUID}
 
 import org.apache.spark.listeners.ListenerSuite
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.util.DateTimeUtils
 import org.apache.spark.sql.streaming.StreamingQueryListener.{QueryProgressEvent, QueryStartedEvent, QueryTerminatedEvent}
 import org.scalatest.BeforeAndAfterEach
 
 import scala.collection.JavaConversions.mapAsJavaMap
 
 object LogAnalyticsStreamingQueryListenerSuite {
-  val queryStartedEvent = new QueryStartedEvent(UUID.randomUUID, UUID.randomUUID, "name")
+  private val timestampFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") // ISO8601
+  timestampFormat.setTimeZone(DateTimeUtils.getTimeZone("UTC"))
+  private val tmStamp = timestampFormat.format(new Date())
+
+  val queryStartedEvent = new QueryStartedEvent(UUID.randomUUID, UUID.randomUUID, "name", tmStamp)
   val queryTerminatedEvent = new QueryTerminatedEvent(UUID.randomUUID, UUID.randomUUID, None)
   val queryProgressEvent = new QueryProgressEvent(
     new StreamingQueryProgress(
@@ -17,6 +24,7 @@ object LogAnalyticsStreamingQueryListenerSuite {
       UUID.randomUUID,
       null,
       ListenerSuite.EPOCH_TIME_AS_ISO8601,
+      2L,
       2L,
       mapAsJavaMap(Map("total" -> 0L)),
       mapAsJavaMap(Map.empty[String, String]),
@@ -32,7 +40,8 @@ object LogAnalyticsStreamingQueryListenerSuite {
           Double.NegativeInfinity
         )
       ),
-      new SinkProgress("sink")
+      new SinkProgress("sink"),
+      mapAsJavaMap(Map.empty[String, Row])
     )
   )
 }

@@ -3,6 +3,7 @@ package org.apache.spark.metrics
 import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics._
+import com.codahale.metrics.jvm.CpuTimeClock
 import org.apache.spark._
 import org.apache.spark.rpc.RpcEndpointRef
 import org.apache.spark.scheduler.TaskSchedulerImpl
@@ -58,9 +59,9 @@ class RpcMetricsReceiverSuite extends SparkFunSuite
   private var settableGauge: SettableGauge[Long] = null
 
   /**
-    * Before each test, set up the SparkContext and a custom [[RpcMetricsReceiver]]
-    * that uses a manual clock.
-    */
+   * Before each test, set up the SparkContext and a custom [[RpcMetricsReceiver]]
+   * that uses a manual clock.
+   */
   override def beforeEach(): Unit = {
     super.beforeEach()
     val conf = new SparkConf()
@@ -92,8 +93,8 @@ class RpcMetricsReceiverSuite extends SparkFunSuite
   }
 
   /**
-    * After each test, clean up all state and stop the [[SparkContext]].
-    */
+   * After each test, clean up all state and stop the [[SparkContext]].
+   */
   override def afterEach(): Unit = {
     super.afterEach()
     scheduler = null
@@ -148,7 +149,7 @@ class RpcMetricsReceiverSuite extends SparkFunSuite
     assert(metric !== None)
   }
 
-  test("CounterMessage received with valid name and inc() called"){
+  test("CounterMessage received with valid name and inc() called") {
     val value: Long = 12345L
     rpcMetricsReceiverRef.send(CounterMessage(
       RpcMetricsReceiverSuite.MetricNamespace,
@@ -169,7 +170,7 @@ class RpcMetricsReceiverSuite extends SparkFunSuite
     verify(counter, timeout(RpcMetricsReceiverSuite.DefaultRpcEventLoopTimeout).times(0)).inc(any[Long])
   }
 
-  test("HistogramMessage received with valid name and update() called"){
+  test("HistogramMessage received with valid name and update() called") {
     val value: Long = 12345L
     rpcMetricsReceiverRef.send(HistogramMessage(
       RpcMetricsReceiverSuite.MetricNamespace,
@@ -202,7 +203,7 @@ class RpcMetricsReceiverSuite extends SparkFunSuite
     verify(histogram, timeout(RpcMetricsReceiverSuite.DefaultRpcEventLoopTimeout).times(0)).update(any[Long])
   }
 
-  test("MeterMessage received with valid name and mark() called"){
+  test("MeterMessage received with valid name and mark() called") {
     val value: Long = 12345L
     rpcMetricsReceiverRef.send(MeterMessage(
       RpcMetricsReceiverSuite.MetricNamespace,
@@ -230,12 +231,12 @@ class RpcMetricsReceiverSuite extends SparkFunSuite
       RpcMetricsReceiverSuite.MetricNamespace,
       RpcMetricsReceiverSuite.MeterName,
       value,
-      classOf[Clock.CpuTimeClock]
+      classOf[CpuTimeClock]
     ))
     verify(meter, timeout(RpcMetricsReceiverSuite.DefaultRpcEventLoopTimeout).times(0)).mark(any[Long])
   }
 
-  test("TimerMessage received with valid name and update() called"){
+  test("TimerMessage received with valid name and update() called") {
     val value: Long = 12345L
     rpcMetricsReceiverRef.send(TimerMessage(
       RpcMetricsReceiverSuite.MetricNamespace,
@@ -291,7 +292,7 @@ class RpcMetricsReceiverSuite extends SparkFunSuite
       value,
       TimeUnit.NANOSECONDS,
       classOf[ExponentiallyDecayingReservoir],
-      classOf[Clock.CpuTimeClock]
+      classOf[CpuTimeClock]
     ))
     verify(timer, timeout(RpcMetricsReceiverSuite.DefaultRpcEventLoopTimeout).times(0)).update(
       any[Long],
@@ -299,7 +300,7 @@ class RpcMetricsReceiverSuite extends SparkFunSuite
     )
   }
 
-  test("SettableGaugeMessage received with valid name and set() called"){
+  test("SettableGaugeMessage received with valid name and set() called") {
     val value: Long = 12345L
     rpcMetricsReceiverRef.send(SettableGaugeMessage(
       RpcMetricsReceiverSuite.MetricNamespace,

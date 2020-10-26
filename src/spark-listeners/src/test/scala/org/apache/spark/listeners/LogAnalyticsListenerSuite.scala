@@ -47,6 +47,7 @@ object LogAnalyticsListenerSuite {
     taskType = "",
     reason = Success,
     createTaskInfo(0, 0),
+    null,
     null)
 
   val sparkListenerStageSubmitted = SparkListenerStageSubmitted(createStageInfo(0, 0))

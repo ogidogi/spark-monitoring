@@ -2,6 +2,7 @@ package org.apache.spark.metrics
 
 import java.util.concurrent.TimeUnit
 
+import com.codahale.metrics.jvm.CpuTimeClock
 import com.codahale.metrics.{Clock, ExponentiallyDecayingReservoir, UniformReservoir}
 import org.apache.spark.SparkFunSuite
 import org.apache.spark.rpc.RpcEndpointRef
@@ -138,10 +139,10 @@ class MetricProxiesSuite extends SparkFunSuite
       this.rpcMetricsReceiverRef,
       MetricProxiesSuite.MetricNamespace,
       MetricProxiesSuite.HistogramName,
-      new Clock.CpuTimeClock)
+      new CpuTimeClock)
     proxy.mark(value)
     verify(this.rpcMetricsReceiverRef).send(argThat(
-      (message: MeterMessage) => message.value === value && message.clockClass === classOf[Clock.CpuTimeClock]))
+      (message: MeterMessage) => message.value === value && message.clockClass === classOf[CpuTimeClock]))
   }
 
   test("TimerProxy calls sendMetric with a TimerMessage for update(Long, TimeUnit)") {
@@ -183,7 +184,7 @@ class MetricProxiesSuite extends SparkFunSuite
       MetricProxiesSuite.MetricNamespace,
       MetricProxiesSuite.TimerName,
       new UniformReservoir,
-      new Clock.CpuTimeClock
+      new CpuTimeClock
     )
 
     proxy.update(value, TimeUnit.SECONDS)
@@ -191,7 +192,7 @@ class MetricProxiesSuite extends SparkFunSuite
       (message: TimerMessage) => message.value === value &&
         message.timeUnit === TimeUnit.SECONDS &&
         message.reservoirClass === classOf[UniformReservoir] &&
-        message.clockClass === classOf[Clock.CpuTimeClock]))
+        message.clockClass === classOf[CpuTimeClock]))
   }
 
   test("SettableGaugeProxy calls sendMetric with a SettableGaugeMessage for set(Long)") {
